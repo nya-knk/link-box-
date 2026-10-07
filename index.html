@@ -12,7 +12,7 @@
 
     body {
       margin: 0;
-      padding: 20px 16px;
+      padding: 20px 16px 100px;
       background: #f5f5f7;
       color: #222;
       font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
@@ -26,7 +26,7 @@
     .grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 18px 10px;
+      gap: 20px 8px;
     }
 
     .link {
@@ -46,12 +46,90 @@
       justify-content: center;
       font-size: 30px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .name {
       font-size: 12px;
       line-height: 1.3;
       word-break: break-word;
+    }
+
+    /* ＋ボタン */
+    .add-button {
+      position: fixed;
+      right: 20px;
+      bottom: 24px;
+      width: 58px;
+      height: 58px;
+      border: none;
+      border-radius: 50%;
+      background: #222;
+      color: white;
+      font-size: 32px;
+      line-height: 1;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    /* 入力画面 */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 500px;
+      background: white;
+      border-radius: 20px 20px 0 0;
+      padding: 24px 20px 30px;
+    }
+
+    .modal h2 {
+      margin: 0 0 20px;
+      font-size: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 12px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .buttons button {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    .cancel {
+      background: #eee;
+    }
+
+    .save {
+      background: #222;
+      color: white;
     }
   </style>
 </head>
@@ -60,29 +138,119 @@
 
   <h1>My Links</h1>
 
-  <div class="grid">
+  <div class="grid" id="linkGrid"></div>
 
-    <a class="link" href="https://www.google.com/" target="_blank">
-      <div class="icon">🔍</div>
-      <div class="name">Google</div>
-    </a>
+  <button class="add-button" onclick="openForm()">＋</button>
 
-    <a class="link" href="https://www.youtube.com/" target="_blank">
-      <div class="icon">▶️</div>
-      <div class="name">YouTube</div>
-    </a>
+  <div class="overlay" id="overlay">
+    <div class="modal">
+      <h2>リンクを追加</h2>
 
-    <a class="link" href="https://github.com/" target="_blank">
-      <div class="icon">🐙</div>
-      <div class="name">GitHub</div>
-    </a>
+      <input id="nameInput" type="text" placeholder="サイト名">
+      <input id="urlInput" type="url" placeholder="https://example.com">
 
-    <a class="link" href="https://www.apple.com/jp/" target="_blank">
-      <div class="icon">🍎</div>
-      <div class="name">Apple</div>
-    </a>
-
+      <div class="buttons">
+        <button class="cancel" onclick="closeForm()">キャンセル</button>
+        <button class="save" onclick="addLink()">保存</button>
+      </div>
+    </div>
   </div>
+
+  <script>
+    const defaultLinks = [
+      {
+        name: "Google",
+        url: "https://www.google.com/"
+      },
+      {
+        name: "YouTube",
+        url: "https://www.youtube.com/"
+      },
+      {
+        name: "GitHub",
+        url: "https://github.com/"
+      },
+      {
+        name: "Apple",
+        url: "https://www.apple.com/jp/"
+      }
+    ];
+
+    let links = JSON.parse(localStorage.getItem("myLinks"));
+
+    if (!links) {
+      links = defaultLinks;
+      saveLinks();
+    }
+
+    function saveLinks() {
+      localStorage.setItem("myLinks", JSON.stringify(links));
+    }
+
+    function displayLinks() {
+      const grid = document.getElementById("linkGrid");
+      grid.innerHTML = "";
+
+      links.forEach(link => {
+        const a = document.createElement("a");
+
+        a.className = "link";
+        a.href = link.url;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+
+        a.innerHTML = `
+          <div class="icon">🔗</div>
+          <div class="name">${escapeHtml(link.name)}</div>
+        `;
+
+        grid.appendChild(a);
+      });
+    }
+
+    function openForm() {
+      document.getElementById("overlay").style.display = "flex";
+      document.getElementById("nameInput").focus();
+    }
+
+    function closeForm() {
+      document.getElementById("overlay").style.display = "none";
+      document.getElementById("nameInput").value = "";
+      document.getElementById("urlInput").value = "";
+    }
+
+    function addLink() {
+      const name = document.getElementById("nameInput").value.trim();
+      const url = document.getElementById("urlInput").value.trim();
+
+      if (!name || !url) {
+        alert("サイト名とURLを入力してください");
+        return;
+      }
+
+      if (!url.startsWith("http://") && !url.startsWith("https://")) {
+        alert("URLは https:// から入力してください");
+        return;
+      }
+
+      links.push({
+        name: name,
+        url: url
+      });
+
+      saveLinks();
+      displayLinks();
+      closeForm();
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    displayLinks();
+  </script>
 
 </body>
 </html>

@@ -1,1 +1,293 @@
-<!DOCTYPE html> <html lang="ja"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"> <meta name="theme-color" content="#f5f5f7"> <title>My Links</title> <style> * { box-sizing: border-box; } body { margin: 0; padding: 20px 16px 100px; background: #f5f5f7; color: #222; font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; -webkit-user-select: none; user-select: none; } h1 { font-size: 24px; margin: 10px 4px 20px; } .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px 8px; } .link { text-decoration: none; color: #222; text-align: center; -webkit-touch-callout: none; touch-action: manipulation; } .icon { width: 64px; height: 64px; margin: 0 auto 7px; border-radius: 15px; background: white; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); } .name { font-size: 12px; line-height: 1.3; word-break: break-word; } .add-button { position: fixed; right: 20px; bottom: 24px; width: 58px; height: 58px; border: none; border-radius: 50%; background: #222; color: white; font-size: 32px; line-height: 1; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 10; } .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); align-items: flex-end; justify-content: center; z-index: 20; } .modal { width: 100%; max-width: 500px; background: white; border-radius: 20px 20px 0 0; padding: 24px 20px 30px; } .modal h2 { margin: 0 0 20px; font-size: 20px; } input { width: 100%; padding: 14px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; -webkit-user-select: text; user-select: text; } .emoji-title { font-size: 14px; margin: 4px 0 8px; font-weight: bold; } .emoji-list { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; margin-bottom: 18px; } .emoji-button { height: 42px; border: 1px solid #ddd; border-radius: 10px; background: #f8f8f8; font-size: 23px; } .emoji-button.selected { background: #222; border-color: #222; } .buttons { display: flex; gap: 10px; margin-top: 8px; } .buttons button { flex: 1; padding: 14px; border: none; border-radius: 10px; font-size: 16px; } .cancel { background: #eee; } .save { background: #222; color: white; } /* 管理メニュー */ .menu { width: 100%; max-width: 500px; background: white; border-radius: 20px 20px 0 0; padding: 10px 20px 30px; } .menu-title { text-align: center; font-weight: bold; padding: 14px; margin-bottom: 4px; } .menu button { width: 100%; padding: 16px; border: none; border-radius: 10px; background: #f5f5f7; margin-top: 8px; font-size: 16px; } .menu .delete { color: #d00; } </style> </head> <body> <h1>My Links</h1> <div class="grid" id="linkGrid"></div> <button class="add-button" onclick="openForm()">＋</button> <!-- 追加・編集画面 --> <div class="overlay" id="formOverlay"> <div class="modal"> <h2 id="formTitle">リンクを追加</h2> <div class="emoji-title">アイコン</div> <div class="emoji-list" id="emojiList"></div> <input id="nameInput" type="text" placeholder="サイト名"> <input id="urlInput" type="url" placeholder="https://example.com"> <div class="buttons"> <button class="cancel" onclick="closeForm()">キャンセル</button> <button class="save" onclick="saveLink()">保存</button> </div> </div> </div> <!-- 長押し後の管理メニュー --> <div class="overlay" id="menuOverlay"> <div class="menu"> <div class="menu-title" id="menuTitle">リンクを管理</div> <button onclick="editLink()">編集</button> <button class="delete" onclick="deleteLink()">削除</button> <button onclick="closeMenu()">キャンセル</button> </div> </div> <script> const emojis = [ "🔗", "⭐", "❤️", "🔍", "🌐", "📚", "📖", "📝", "📁", "📄", "📊", "💼", "🏢", "🏠", "🛒", "💰", "🎮", "🎵", "🎬", "📺", "📷", "🎨", "🍔", "☕", "🚗", "✈️", "🗺️", "📱", "💻", "🔧", "⚙️", "🔥" ]; const defaultLinks = [ { name: "Google", url: "https://www.google.com/", icon: "🔍" }, { name: "YouTube", url: "https://www.youtube.com/", icon: "📺" }, { name: "GitHub", url: "https://github.com/", icon: "💻" }, { name: "Apple", url: "https://www.apple.com/jp/", icon: "🍎" } ]; let links = JSON.parse(localStorage.getItem("myLinks")); if (!links) { links = defaultLinks; saveLinks(); } let editingIndex = null; let managingIndex = null; let selectedEmoji = "🔗"; function saveLinks() { localStorage.setItem("myLinks", JSON.stringify(links)); } function displayLinks() { const grid = document.getElementById("linkGrid"); grid.innerHTML = ""; links.forEach((link, index) => { const a = document.createElement("a"); a.className = "link"; a.href = link.url; a.target = "_blank"; a.rel = "noopener noreferrer"; a.innerHTML = ` <div class="icon">${escapeHtml(link.icon || "🔗")}</div> <div class="name">${escapeHtml(link.name)}</div> `; /* 長押し判定 */ let timer = null; let longPressed = false; a.addEventListener("touchstart", function() { longPressed = false; timer = setTimeout(() => { longPressed = true; managingIndex = index; document.getElementById("menuTitle").textContent = link.icon + " " + link.name; document.getElementById("menuOverlay").style.display = "flex"; }, 600); }); a.addEventListener("touchend", function(event) { clearTimeout(timer); if (longPressed) { event.preventDefault(); } }); a.addEventListener("touchmove", function() { clearTimeout(timer); }); /* PCでも右クリックで管理メニューを出せる */ a.addEventListener("contextmenu", function(event) { event.preventDefault(); managingIndex = index; document.getElementById("menuTitle").textContent = link.icon + " " + link.name; document.getElementById("menuOverlay").style.display = "flex"; }); grid.appendChild(a); }); } function createEmojiButtons() { const list = document.getElementById("emojiList"); list.innerHTML = ""; emojis.forEach(emoji => { const button = document.createElement("button"); button.className = "emoji-button"; if (emoji === selectedEmoji) { button.classList.add("selected"); } button.textContent = emoji; button.onclick = function() { selectedEmoji = emoji; createEmojiButtons(); }; list.appendChild(button); }); } function openForm(index = null) { editingIndex = index; if (index === null) { document.getElementById("formTitle").textContent = "リンクを追加"; selectedEmoji = "🔗"; document.getElementById("nameInput").value = ""; document.getElementById("urlInput").value = ""; } else { const link = links[index]; document.getElementById("formTitle").textContent = "リンクを編集"; selectedEmoji = link.icon || "🔗"; document.getElementById("nameInput").value = link.name; document.getElementById("urlInput").value = link.url; } createEmojiButtons(); document.getElementById("formOverlay").style.display = "flex"; } function closeForm() { document.getElementById("formOverlay").style.display = "none"; } function saveLink() { const name = document.getElementById("nameInput").value.trim(); const url = document.getElementById("urlInput").value.trim(); if (!name || !url) { alert("サイト名とURLを入力してください"); return; } if ( !url.startsWith("http://") && !url.startsWith("https://") ) { alert("URLは https:// から入力してください"); return; } const newLink = { name: name, url: url, icon: selectedEmoji }; if (editingIndex === null) { links.push(newLink); } else { links[editingIndex] = newLink; } saveLinks(); displayLinks(); closeForm(); } function closeMenu() { document.getElementById("menuOverlay").style.display = "none"; managingIndex = null; } function editLink() { const index = managingIndex; closeMenu(); openForm(index); } function deleteLink() { if (managingIndex === null) { return; } const link = links[managingIndex]; const confirmed = confirm(`「${link.name}」を削除しますか？`); if (!confirmed) { return; } links.splice(managingIndex, 1); saveLinks(); displayLinks(); closeMenu(); } function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; } displayLinks(); </script> </body> </html>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Links</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;background:#f5f5f7;color:#222}
+header{padding:18px 16px 8px;text-align:center;font-size:22px;font-weight:700}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:8px 12px 14px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;border:none;background:#e5e5ea;color:#555;padding:8px 15px;border-radius:18px;font-size:14px;white-space:nowrap}
+.tab.active{background:#222;color:white}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px 10px;padding:12px}
+.item{text-align:center;user-select:none;touch-action:manipulation}
+.icon{width:58px;height:58px;margin:0 auto 6px;border-radius:15px;background:white;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.name{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 3px}
+.add{cursor:pointer}
+.editing .item{animation:shake .15s infinite alternate}
+@keyframes shake{from{transform:rotate(-1deg)}to{transform:rotate(1deg)}}
+.item.dragging{opacity:.35}
+.done-button{display:none;margin:4px auto 12px;border:none;background:#007aff;color:white;padding:9px 22px;border-radius:20px;font-size:14px}
+.editing .done-button{display:block}
+.empty{grid-column:1/-1;text-align:center;color:#999;padding:50px 20px;font-size:14px}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center;padding:20px}
+.overlay.show{display:flex}
+.modal{width:100%;max-width:380px;background:white;border-radius:20px;padding:20px}
+.modal h2{margin:0 0 18px;font-size:20px}
+.modal input,.modal select{width:100%;padding:12px;margin-bottom:12px;border:1px solid #ddd;border-radius:10px;font-size:16px;background:white}
+.emoji-list{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:15px}
+.emoji-button{border:none;background:#f2f2f7;border-radius:10px;font-size:24px;padding:8px}
+.emoji-button.selected{background:#dbeeff}
+.buttons{display:flex;gap:8px}
+.buttons button{flex:1;border:none;border-radius:12px;padding:12px;font-size:15px}
+.cancel{background:#e5e5ea}.save{background:#007aff;color:white}
+.delete{background:#ff3b30;color:white;margin-top:8px;width:100%;border:none;border-radius:12px;padding:12px;font-size:15px}
+.manage-buttons{display:flex;flex-direction:column;gap:8px}
+.manage-buttons button{width:100%;border:none;border-radius:12px;padding:13px;font-size:15px}
+.edit-link{background:#007aff;color:white}.change-category{background:#e5e5ea}
+.delete-link{background:#ff3b30;color:white}.close-manage{background:#e5e5ea}
+</style>
+</head>
+<body>
+<header>My Links</header>
+<div class="tabs" id="tabs"></div>
+<button class="done-button" id="doneButton">完了</button>
+<div class="grid" id="grid"></div>
+
+<div class="overlay" id="editOverlay">
+<div class="modal">
+<h2 id="modalTitle">リンクを追加</h2>
+<div class="emoji-list" id="emojiList"></div>
+<input id="nameInput" type="text" placeholder="名前">
+<input id="urlInput" type="url" placeholder="https://example.com">
+<select id="categoryInput"></select>
+<div class="buttons">
+<button class="cancel" id="cancelButton">キャンセル</button>
+<button class="save" id="saveButton">保存</button>
+</div>
+<button class="delete" id="deleteButton" style="display:none;">削除</button>
+</div>
+</div>
+
+<div class="overlay" id="manageOverlay">
+<div class="modal">
+<h2>リンクを管理</h2>
+<div class="manage-buttons">
+<button class="edit-link" id="editButton">編集</button>
+<button class="change-category" id="categoryButton">カテゴリ変更</button>
+<button class="delete-link" id="manageDeleteButton">削除</button>
+<button class="close-manage" id="closeManageButton">キャンセル</button>
+</div>
+</div>
+</div>
+
+<script>
+const defaultLinks=[
+{id:1,name:"Google",url:"https://www.google.com",icon:"🔍",category:"すべて"},
+{id:2,name:"YouTube",url:"https://www.youtube.com",icon:"▶️",category:"すべて"},
+{id:3,name:"GitHub",url:"https://github.com",icon:"🐙",category:"すべて"},
+{id:4,name:"Apple",url:"https://www.apple.com",icon:"🍎",category:"すべて"}];
+
+const emojiChoices=["🔍","▶️","🐙","🍎","🌐","📱","💻","📷","🎵","🎮","🛒","🏠","💼","📚","✈️","🍔","🏦","💰","📰","⭐","❤️","🔧","📁","🔗"];
+
+let links=JSON.parse(localStorage.getItem("myLinks"));
+if(!links){links=defaultLinks;saveLinks()}
+let categories=JSON.parse(localStorage.getItem("myCategories"));
+if(!categories){categories=["すべて","仕事","趣味","買い物"];saveCategories()}
+
+let currentCategory="すべて",selectedEmoji="🔗",editingId=null,managingId=null,editingMode=false;
+
+const grid=document.getElementById("grid"),tabs=document.getElementById("tabs"),editOverlay=document.getElementById("editOverlay"),manageOverlay=document.getElementById("manageOverlay");
+
+function saveLinks(){localStorage.setItem("myLinks",JSON.stringify(links))}
+function saveCategories(){localStorage.setItem("myCategories",JSON.stringify(categories))}
+
+function renderTabs(){
+tabs.innerHTML="";
+categories.forEach(category=>{
+const button=document.createElement("button");
+button.className="tab"+(category===currentCategory?" active":"");
+button.textContent=category;
+button.onclick=()=>{currentCategory=category;renderTabs();renderLinks()};
+tabs.appendChild(button);
+});
+}
+
+function renderLinks(){
+grid.innerHTML="";
+const visibleLinks=links.filter(link=>currentCategory==="すべて"||link.category===currentCategory);
+if(visibleLinks.length===0){
+const empty=document.createElement("div");
+empty.className="empty";
+empty.textContent="このカテゴリにはリンクがありません";
+grid.appendChild(empty);
+}
+visibleLinks.forEach(createLinkElement);
+const addItem=document.createElement("div");
+addItem.className="item add";
+addItem.innerHTML='<div class="icon">＋</div><div class="name">追加</div>';
+addItem.onclick=()=>openEdit(null);
+grid.appendChild(addItem);
+}
+
+function createLinkElement(link){
+const item=document.createElement("div");
+item.className="item";
+item.dataset.id=link.id;
+item.draggable=editingMode;
+item.innerHTML='<div class="icon">'+link.icon+'</div><div class="name">'+escapeHtml(link.name)+'</div>';
+
+let pressTimer=null,longPressed=false;
+
+item.addEventListener("touchstart",e=>{
+if(editingMode)return;
+longPressed=false;
+pressTimer=setTimeout(()=>{longPressed=true;openManage(link.id)},600);
+},{passive:true});
+
+item.addEventListener("touchend",e=>{
+clearTimeout(pressTimer);
+if(longPressed){e.preventDefault();return}
+if(!editingMode)window.open(link.url,"_blank");
+});
+
+item.addEventListener("touchmove",()=>clearTimeout(pressTimer),{passive:true});
+
+if(editingMode){
+item.addEventListener("dragstart",dragStart);
+item.addEventListener("dragover",dragOver);
+item.addEventListener("drop",drop);
+item.addEventListener("dragend",dragEnd);
+item.addEventListener("touchstart",touchDragStart,{passive:false});
+item.addEventListener("touchmove",touchDragMove,{passive:false});
+item.addEventListener("touchend",touchDragEnd);
+}
+grid.appendChild(item);
+}
+
+function escapeHtml(text){const div=document.createElement("div");div.textContent=text;return div.innerHTML}
+
+document.getElementById("doneButton").onclick=()=>{editingMode=false;document.body.classList.remove("editing");renderLinks()};
+
+function startEditingMode(){editingMode=true;document.body.classList.add("editing");renderLinks()}
+
+let draggedId=null;
+function dragStart(e){draggedId=Number(e.currentTarget.dataset.id);e.currentTarget.classList.add("dragging")}
+function dragOver(e){e.preventDefault()}
+function drop(e){e.preventDefault();const targetId=Number(e.currentTarget.dataset.id);if(!draggedId||draggedId===targetId)return;moveLink(draggedId,targetId)}
+function dragEnd(e){e.currentTarget.classList.remove("dragging");draggedId=null}
+
+let touchDraggingId=null;
+function touchDragStart(e){
+if(!editingMode)return;
+const item=e.currentTarget;
+touchDraggingId=Number(item.dataset.id);
+item.classList.add("dragging");
+e.preventDefault();
+}
+function touchDragMove(e){
+if(!editingMode||!touchDraggingId)return;
+e.preventDefault();
+const touch=e.touches[0],element=document.elementFromPoint(touch.clientX,touch.clientY),target=element?.closest(".item");
+if(!target||target.dataset.id===String(touchDraggingId))return;
+const targetId=Number(target.dataset.id);
+if(!targetId)return;
+moveLink(touchDraggingId,targetId);
+touchDraggingId=null;
+renderLinks();
+}
+function touchDragEnd(){
+document.querySelectorAll(".dragging").forEach(item=>item.classList.remove("dragging"));
+touchDraggingId=null;
+}
+
+function moveLink(fromId,toId){
+const fromIndex=links.findIndex(link=>link.id===fromId),toIndex=links.findIndex(link=>link.id===toId);
+if(fromIndex===-1||toIndex===-1)return;
+const moved=links.splice(fromIndex,1)[0];
+links.splice(toIndex,0,moved);
+saveLinks();
+renderLinks();
+}
+
+function openManage(id){managingId=id;manageOverlay.classList.add("show")}
+document.getElementById("closeManageButton").onclick=()=>manageOverlay.classList.remove("show");
+document.getElementById("editButton").onclick=()=>{manageOverlay.classList.remove("show");openEdit(managingId)};
+document.getElementById("categoryButton").onclick=()=>{manageOverlay.classList.remove("show");openEdit(managingId);setTimeout(()=>document.getElementById("categoryInput").focus(),100)};
+document.getElementById("manageDeleteButton").onclick=()=>{
+const link=links.find(l=>l.id===managingId);
+if(!link)return;
+if(!confirm("「"+link.name+"」を削除しますか？"))return;
+links=links.filter(l=>l.id!==managingId);
+saveLinks();manageOverlay.classList.remove("show");renderLinks();
+};
+
+function renderEmojiChoices(){
+const container=document.getElementById("emojiList");
+container.innerHTML="";
+emojiChoices.forEach(emoji=>{
+const button=document.createElement("button");
+button.className="emoji-button"+(emoji===selectedEmoji?" selected":"");
+button.textContent=emoji;
+button.onclick=()=>{selectedEmoji=emoji;renderEmojiChoices()};
+container.appendChild(button);
+});
+}
+
+function renderCategorySelect(){
+const select=document.getElementById("categoryInput");
+select.innerHTML="";
+categories.filter(category=>category!=="すべて").forEach(category=>{
+const option=document.createElement("option");
+option.value=category;option.textContent=category;select.appendChild(option);
+});
+}
+
+function openEdit(id){
+editingId=id;
+renderCategorySelect();
+const deleteButton=document.getElementById("deleteButton");
+if(id===null){
+document.getElementById("modalTitle").textContent="リンクを追加";
+document.getElementById("nameInput").value="";
+document.getElementById("urlInput").value="";
+selectedEmoji="🔗";
+if(categories.length>1)document.getElementById("categoryInput").value=categories[1];
+deleteButton.style.display="none";
+}else{
+const link=links.find(l=>l.id===id);
+if(!link)return;
+document.getElementById("modalTitle").textContent="リンクを編集";
+document.getElementById("nameInput").value=link.name;
+document.getElementById("urlInput").value=link.url;
+selectedEmoji=link.icon;
+document.getElementById("categoryInput").value=link.category;
+deleteButton.style.display="block";
+}
+renderEmojiChoices();
+editOverlay.classList.add("show");
+}
+
+document.getElementById("cancelButton").onclick=()=>editOverlay.classList.remove("show");
+
+document.getElementById("saveButton").onclick=()=>{
+const name=document.getElementById("nameInput").value.trim();
+const url=document.getElementById("urlInput").value.trim();
+const category=document.getElementById("categoryInput").value;
+if(!name||!url){alert("名前とURLを入力してください");return}
+if(editingId===null){
+links.push({id:Date.now(),name,url,icon:selectedEmoji,category});
+}else{
+const link=links.find(l=>l.id===editingId);
+if(link){link.name=name;link.url=url;link.icon=selectedEmoji;link.category=category}
+}
+saveLinks();editOverlay.classList.remove("show");renderLinks();
+};
+
+document.getElementById("deleteButton").onclick=()=>{
+if(editingId===null)return;
+const link=links.find(l=>l.id===editingId);
+if(!link)return;
+if(!confirm("「"+link.name+"」を削除しますか？"))return;
+links=links.filter(l=>l.id!==editingId);
+saveLinks();editOverlay.classList.remove("show");renderLinks();
+};
+
+renderTabs();
+renderLinks();
+</script>
+</body>
+</html>

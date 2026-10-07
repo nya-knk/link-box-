@@ -2,465 +2,365 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>My Links</title>
 <style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;background:#f5f5f7;color:#222}
-header{height:58px;padding:17px 16px 8px;text-align:center;font-size:22px;font-weight:700;position:relative}
-.settings{position:absolute;right:14px;top:13px;border:0;background:transparent;font-size:22px;padding:5px}
-.tabs{display:flex;gap:8px;overflow-x:auto;padding:8px 12px 14px;scrollbar-width:none}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#f6f6f8;
+  color:#222;
+  font-family:"Hiragino Maru Gothic ProN","Hiragino Maru Gothic Pro","Yu Gothic",YuGothic,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+button,input,select{font:inherit}
+header{
+  position:sticky;top:0;z-index:10;
+  height:58px;padding:0 14px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(255,255,255,.94);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid #e5e5e8;
+}
+h1{font-size:20px;margin:0;font-weight:700;letter-spacing:.02em}
+.icon-btn{
+  width:40px;height:40px;border:0;border-radius:12px;
+  background:#f0f0f3;font-size:21px;display:flex;
+  align-items:center;justify-content:center;
+}
+.tabs{
+  display:flex;gap:8px;overflow-x:auto;padding:12px 12px 8px;
+  scrollbar-width:none;
+}
 .tabs::-webkit-scrollbar{display:none}
-.tab{flex:0 0 auto;border:none;background:#e5e5ea;color:#555;padding:8px 15px;border-radius:18px;font-size:14px;white-space:nowrap}
-.tab.active{background:#222;color:white}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px 10px;padding:12px}
-.item{text-align:center;user-select:none;touch-action:manipulation}
-.icon{width:58px;height:58px;margin:0 auto 6px;border-radius:15px;background:white;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
-.name{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 3px}
-.add{cursor:pointer}
-.empty{grid-column:1/-1;text-align:center;color:#999;padding:50px 20px;font-size:14px}
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center;padding:20px}
-.overlay.show{display:flex}
-.modal{width:100%;max-width:380px;max-height:90vh;overflow:auto;background:white;border-radius:20px;padding:20px}
-.modal h2{margin:0 0 18px;font-size:20px}
-.modal input,.modal select{width:100%;padding:12px;margin-bottom:12px;border:1px solid #ddd;border-radius:10px;font-size:16px;background:white}
-.emoji-list{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:15px}
-.emoji-button{border:none;background:#f2f2f7;border-radius:10px;font-size:24px;padding:8px}
-.emoji-button.selected{background:#dbeeff}
-.buttons{display:flex;gap:8px}
-.buttons button,.manage-buttons button,.settings-list button{border:none;border-radius:12px;padding:13px;font-size:15px}
-.buttons button{flex:1}
-.cancel,.close{background:#e5e5ea}
-.save,.edit-link{background:#007aff;color:white}
-.delete,.delete-link{background:#ff3b30;color:white}
-.manage-buttons,.settings-list{display:flex;flex-direction:column;gap:8px}
-.change-category,.sort-link,.category-add{background:#e5e5ea}
-.sort-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #eee}
-.sort-icon{font-size:26px;width:42px;text-align:center}
-.sort-name{flex:1;font-size:15px}
-.arrow{width:42px;background:#e5e5ea}
-.category-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #eee}
-.category-name{flex:1;font-size:15px}
-.category-row button{border:none;border-radius:9px;padding:8px 10px}
-.category-edit{background:#e5e5ea}
-.category-delete{background:#ff3b30;color:white}
-.note{font-size:12px;color:#888;margin:-8px 0 14px}
+.tab{
+  flex:0 0 auto;border:0;border-radius:18px;padding:8px 15px;
+  background:#e9e9ed;color:#555;font-size:14px;
+}
+.tab.active{background:#222;color:#fff}
+.grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:10px;padding:8px 10px 90px;
+}
+.link{
+  min-width:0;aspect-ratio:1/1;
+  border:0;border-radius:18px;background:#fff;
+  box-shadow:0 1px 4px rgba(0,0,0,.07);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:7px;touch-action:manipulation;
+}
+.link:active{transform:scale(.96)}
+.link-icon{font-size:31px;line-height:1.1;margin-bottom:7px}
+.link-name{
+  width:100%;font-size:11px;text-align:center;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.add{
+  border:2px dashed #c9c9cf;background:transparent;box-shadow:none;
+  color:#777;font-size:30px;
+}
+.modal-bg{
+  position:fixed;inset:0;z-index:50;
+  background:rgba(0,0,0,.38);
+  display:flex;align-items:flex-end;justify-content:center;
+}
+.modal{
+  width:100%;max-width:520px;background:#fff;
+  border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));
+  max-height:88vh;overflow:auto;
+}
+.modal h2{font-size:18px;margin:0 0 14px}
+.row{margin:11px 0}
+label{display:block;font-size:13px;color:#666;margin-bottom:6px}
+input,select{
+  width:100%;padding:12px 13px;border:1px solid #d7d7dc;
+  border-radius:12px;background:#fff;outline:none;
+}
+input:focus,select:focus{border-color:#777}
+.actions{display:grid;gap:9px;margin-top:16px}
+.actions button{
+  border:0;border-radius:12px;padding:12px;font-weight:600;
+  background:#222;color:#fff;
+}
+.actions .secondary{background:#ededf0;color:#222}
+.actions .danger{background:#ffe8e8;color:#c00}
+.emoji-grid{
+  display:grid;grid-template-columns:repeat(8,1fr);gap:7px;
+  margin-top:7px;
+}
+.emoji{
+  border:0;background:#f2f2f4;border-radius:10px;
+  min-height:39px;font-size:22px;
+}
+.emoji.selected{outline:2px solid #222;background:#fff}
+.hint{font-size:11px;color:#888;margin-top:6px}
+.settings-list{display:grid;gap:8px}
+.setting-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px;border:1px solid #e4e4e7;border-radius:13px;
+}
+.setting-item .name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.setting-item .btns{display:flex;gap:6px;margin-left:8px}
+.small-btn{
+  border:0;border-radius:9px;padding:7px 9px;background:#eeeef1;
+}
+.reorder-list{display:grid;gap:8px}
+.reorder-item{
+  display:flex;align-items:center;gap:9px;
+  padding:9px;border:1px solid #e4e4e7;border-radius:13px;
+  background:#fff;
+}
+.reorder-item .ri-name{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reorder-item button{border:0;border-radius:9px;background:#eeeef1;padding:8px 11px}
+.empty{grid-column:1/-1;text-align:center;color:#888;padding:35px 10px}
+.hidden{display:none!important}
 </style>
 </head>
 <body>
-
 <header>
-My Links
-<button class="settings" id="settingsButton">⚙️</button>
+  <h1>My Links</h1>
+  <button class="icon-btn" id="settingsBtn" aria-label="設定">⚙️</button>
 </header>
 
 <div class="tabs" id="tabs"></div>
-<div class="grid" id="grid"></div>
+<main class="grid" id="grid"></main>
 
-<!-- リンク管理 -->
-<div class="overlay" id="manageOverlay">
-<div class="modal">
-<h2>リンクを管理</h2>
-<div class="manage-buttons">
-<button class="edit-link" id="editButton">編集</button>
-<button class="change-category" id="categoryButton">カテゴリ変更</button>
-<button class="sort-link" id="sortLinkButton">並べ替え</button>
-<button class="delete-link" id="manageDeleteButton">削除</button>
-<button class="close" id="closeManageButton">キャンセル</button>
-</div>
-</div>
-</div>
-
-<!-- リンク編集 -->
-<div class="overlay" id="editOverlay">
-<div class="modal">
-<h2 id="modalTitle">リンクを追加</h2>
-<div class="emoji-list" id="emojiList"></div>
-<input id="nameInput" type="text" placeholder="名前">
-<input id="urlInput" type="url" placeholder="https://example.com">
-<select id="categoryInput"></select>
-<div class="buttons">
-<button class="cancel" id="cancelButton">キャンセル</button>
-<button class="save" id="saveButton">保存</button>
-</div>
-<button class="delete" id="deleteButton" style="display:none;width:100%;margin-top:8px">削除</button>
-</div>
-</div>
-
-<!-- 設定 -->
-<div class="overlay" id="settingsOverlay">
-<div class="modal">
-<h2>設定</h2>
-<div class="settings-list">
-<button class="category-add" id="addCategoryButton">＋ カテゴリを追加</button>
-<button class="sort-link" id="globalSortButton">リンクを並べ替える</button>
-<button class="close" id="closeSettingsButton">閉じる</button>
-</div>
-<div style="margin-top:22px">
-<h3 style="font-size:16px;margin:0 0 8px">カテゴリ</h3>
-<div id="categoryList"></div>
-</div>
-</div>
-</div>
-
-<!-- 並べ替え -->
-<div class="overlay" id="sortOverlay">
-<div class="modal">
-<h2>リンクを並べ替え</h2>
-<p class="note">↑ ↓ を押して順番を変更できます。</p>
-<div id="sortList"></div>
-<button class="close" id="closeSortButton" style="width:100%;margin-top:14px">完了</button>
-</div>
-</div>
+<div id="modalRoot" class="hidden"></div>
 
 <script>
+const LINKS_KEY="myLinks";
+const CATS_KEY="myCategories";
+
+const defaultCategories=["仕事","趣味","買い物"];
 const defaultLinks=[
-{id:1,name:"Google",url:"https://www.google.com",icon:"🔍",category:"仕事"},
-{id:2,name:"YouTube",url:"https://www.youtube.com",icon:"▶️",category:"趣味"},
-{id:3,name:"GitHub",url:"https://github.com",icon:"🐙",category:"仕事"},
-{id:4,name:"Apple",url:"https://www.apple.com",icon:"🍎",category:"買い物"}];
+  {id:crypto.randomUUID(),name:"Google",url:"https://www.google.com/",icon:"🔎",category:"仕事"},
+  {id:crypto.randomUUID(),name:"YouTube",url:"https://www.youtube.com/",icon:"▶️",category:"趣味"},
+  {id:crypto.randomUUID(),name:"GitHub",url:"https://github.com/",icon:"🐙",category:"仕事"},
+  {id:crypto.randomUUID(),name:"Apple",url:"https://www.apple.com/jp/",icon:"",category:"買い物"}
+];
 
-const emojiChoices=["🔍","▶️","🐙","🍎","🌐","📱","💻","📷","🎵","🎮","🛒","🏠","💼","📚","✈️","🍔","🏦","💰","📰","⭐","❤️","🔧","📁","🔗"];
+let categories=load(CATS_KEY,null);
+let links=load(LINKS_KEY,null);
+if(!Array.isArray(categories)||categories.length===0) categories=[...defaultCategories];
+if(!Array.isArray(links)||links.length===0) links=defaultLinks;
+links=links.map(x=>({...x,id:x.id||crypto.randomUUID(),icon:x.icon||"🔗",category:x.category||categories[0]}));
+categories=[...new Set(categories)];
+save();
 
-let links=JSON.parse(localStorage.getItem("myLinks"));
-if(!links){links=defaultLinks;saveLinks()}
+let currentCategory="すべて";
+let pressTimer=null;
+let longPressed=false;
 
-let categories=JSON.parse(localStorage.getItem("myCategories"));
-if(!categories){categories=["すべて","仕事","趣味","買い物"];saveCategories()}
-else if(!categories.includes("すべて")){categories.unshift("すべて");saveCategories()}
+const $=id=>document.getElementById(id);
+function load(k,f){try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch(e){return f}}
+function save(){localStorage.setItem(LINKS_KEY,JSON.stringify(links));localStorage.setItem(CATS_KEY,JSON.stringify(categories))}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 
-let currentCategory="すべて",selectedEmoji="🔗",editingId=null,managingId=null;
-
-const grid=document.getElementById("grid");
-const tabs=document.getElementById("tabs");
-const manageOverlay=document.getElementById("manageOverlay");
-const editOverlay=document.getElementById("editOverlay");
-const settingsOverlay=document.getElementById("settingsOverlay");
-const sortOverlay=document.getElementById("sortOverlay");
-
-function saveLinks(){localStorage.setItem("myLinks",JSON.stringify(links))}
-function saveCategories(){localStorage.setItem("myCategories",JSON.stringify(categories))}
+function render(){
+  renderTabs();
+  const grid=$("grid"); grid.innerHTML="";
+  const shown=currentCategory==="すべて"?links:links.filter(x=>x.category===currentCategory);
+  shown.forEach(item=>{
+    const b=document.createElement("button");
+    b.className="link";
+    b.innerHTML=`<div class="link-icon">${esc(item.icon)}</div><div class="link-name">${esc(item.name)}</div>`;
+    b.addEventListener("touchstart",()=>startPress(item.id),{passive:true});
+    b.addEventListener("touchend",e=>endPress(e,item.id));
+    b.addEventListener("touchcancel",cancelPress,{passive:true});
+    b.addEventListener("mousedown",()=>startPress(item.id));
+    b.addEventListener("mouseup",e=>endPress(e,item.id));
+    b.addEventListener("mouseleave",cancelPress);
+    grid.appendChild(b);
+  });
+  const add=document.createElement("button");
+  add.className="link add"; add.textContent="＋";
+  add.addEventListener("click",()=>openEdit(null));
+  grid.appendChild(add);
+}
 
 function renderTabs(){
-tabs.innerHTML="";
-categories.forEach(category=>{
-const b=document.createElement("button");
-b.className="tab"+(category===currentCategory?" active":"");
-b.textContent=category;
-b.onclick=()=>{currentCategory=category;renderTabs();renderLinks()};
-tabs.appendChild(b);
-});
+  const tabs=$("tabs");tabs.innerHTML="";
+  ["すべて",...categories].forEach(cat=>{
+    const b=document.createElement("button");
+    b.className="tab"+(currentCategory===cat?" active":"");
+    b.textContent=cat;
+    b.onclick=()=>{currentCategory=cat;render()};
+    tabs.appendChild(b);
+  });
+}
+function startPress(id){
+  longPressed=false;
+  clearTimeout(pressTimer);
+  pressTimer=setTimeout(()=>{longPressed=true;openManage(id)},600);
+}
+function cancelPress(){clearTimeout(pressTimer)}
+function endPress(e,id){
+  clearTimeout(pressTimer);
+  if(longPressed){e.preventDefault();longPressed=false;return}
+  const item=links.find(x=>x.id===id);
+  if(item) window.open(item.url,"_blank");
 }
 
-function renderLinks(){
-grid.innerHTML="";
-const visible=links.filter(l=>currentCategory==="すべて"||l.category===currentCategory);
-if(visible.length===0){
-const empty=document.createElement("div");
-empty.className="empty";
-empty.textContent="このカテゴリにはリンクがありません";
-grid.appendChild(empty);
+function showModal(html){
+  const r=$("modalRoot");r.className="modal-bg";r.innerHTML=`<div class="modal">${html}</div>`;
+  r.addEventListener("click",e=>{if(e.target===r)closeModal()},{once:true});
 }
-visible.forEach(link=>{
-const item=document.createElement("div");
-item.className="item";
-item.innerHTML='<div class="icon">'+link.icon+'</div><div class="name">'+escapeHtml(link.name)+'</div>';
+function closeModal(){const r=$("modalRoot");r.className="hidden";r.innerHTML=""}
 
-let timer=null,longPressed=false;
-item.addEventListener("touchstart",()=>{
-longPressed=false;
-timer=setTimeout(()=>{longPressed=true;openManage(link.id)},600);
-},{passive:true});
-item.addEventListener("touchend",e=>{
-clearTimeout(timer);
-if(longPressed){e.preventDefault();return}
-window.open(link.url,"_blank");
-});
-item.addEventListener("touchmove",()=>clearTimeout(timer),{passive:true});
-item.onclick=()=>{};
-grid.appendChild(item);
-});
+const emojiChoices=["🔗","⭐","❤️","😀","🏠","💼","📱","💻","🖥️","📚","🎮","🎵","🎬","📷","🛒","🍔","☕","✈️","🚗","🏃","💡","📌","🔒","🔔","🌐","🐶","🐱","🌸","🔥","✨","📁"];
 
-const add=document.createElement("div");
-add.className="item add";
-add.innerHTML='<div class="icon">＋</div><div class="name">追加</div>';
-add.onclick=()=>openEdit(null);
-grid.appendChild(add);
-}
-
-function escapeHtml(text){
-const d=document.createElement("div");
-d.textContent=text;
-return d.innerHTML;
+function emojiButtons(selected){
+  return `<div class="emoji-grid">${emojiChoices.map(e=>`<button type="button" class="emoji ${e===selected?"selected":""}" data-emoji="${esc(e)}">${e}</button>`).join("")}</div>`;
 }
 
 function openManage(id){
-managingId=id;
-manageOverlay.classList.add("show");
-}
-
-document.getElementById("closeManageButton").onclick=()=>manageOverlay.classList.remove("show");
-
-document.getElementById("editButton").onclick=()=>{
-manageOverlay.classList.remove("show");
-openEdit(managingId);
-};
-
-document.getElementById("categoryButton").onclick=()=>{
-manageOverlay.classList.remove("show");
-openEdit(managingId);
-setTimeout(()=>document.getElementById("categoryInput").focus(),100);
-};
-
-document.getElementById("sortLinkButton").onclick=()=>{
-manageOverlay.classList.remove("show");
-openSort();
-};
-
-document.getElementById("manageDeleteButton").onclick=()=>{
-const link=links.find(l=>l.id===managingId);
-if(!link)return;
-if(!confirm("「"+link.name+"」を削除しますか？"))return;
-links=links.filter(l=>l.id!==managingId);
-saveLinks();
-manageOverlay.classList.remove("show");
-renderLinks();
-};
-
-function renderEmojiChoices(){
-const box=document.getElementById("emojiList");
-box.innerHTML="";
-emojiChoices.forEach(emoji=>{
-const b=document.createElement("button");
-b.className="emoji-button"+(emoji===selectedEmoji?" selected":"");
-b.textContent=emoji;
-b.onclick=()=>{selectedEmoji=emoji;renderEmojiChoices()};
-box.appendChild(b);
-});
-}
-
-function renderCategorySelect(){
-const select=document.getElementById("categoryInput");
-select.innerHTML="";
-categories.filter(c=>c!=="すべて").forEach(c=>{
-const o=document.createElement("option");
-o.value=c;o.textContent=c;select.appendChild(o);
-});
+  const item=links.find(x=>x.id===id); if(!item)return;
+  showModal(`<h2>${esc(item.icon)} ${esc(item.name)}</h2>
+    <div class="actions">
+      <button id="mEdit">編集</button>
+      <button id="mCat">カテゴリ変更</button>
+      <button id="mOrder">並べ替え</button>
+      <button id="mDel" class="danger">削除</button>
+      <button id="mCancel" class="secondary">キャンセル</button>
+    </div>`);
+  $("mEdit").onclick=()=>openEdit(id);
+  $("mCat").onclick=()=>changeCategory(id);
+  $("mOrder").onclick=()=>openReorder(id);
+  $("mDel").onclick=()=>deleteLink(id);
+  $("mCancel").onclick=closeModal;
 }
 
 function openEdit(id){
-editingId=id;
-renderCategorySelect();
-const del=document.getElementById("deleteButton");
-if(id===null){
-document.getElementById("modalTitle").textContent="リンクを追加";
-document.getElementById("nameInput").value="";
-document.getElementById("urlInput").value="";
-selectedEmoji="🔗";
-if(categories.length>1)document.getElementById("categoryInput").value=categories[1];
-del.style.display="none";
-}else{
-const link=links.find(l=>l.id===id);
-if(!link)return;
-document.getElementById("modalTitle").textContent="リンクを編集";
-document.getElementById("nameInput").value=link.name;
-document.getElementById("urlInput").value=link.url;
-selectedEmoji=link.icon;
-document.getElementById("categoryInput").value=link.category;
-del.style.display="block";
-}
-renderEmojiChoices();
-editOverlay.classList.add("show");
-}
-
-document.getElementById("cancelButton").onclick=()=>editOverlay.classList.remove("show");
-
-document.getElementById("saveButton").onclick=()=>{
-const name=document.getElementById("nameInput").value.trim();
-const url=document.getElementById("urlInput").value.trim();
-const category=document.getElementById("categoryInput").value;
-if(!name||!url){alert("名前とURLを入力してください");return}
-if(editingId===null){
-links.push({id:Date.now(),name,url,icon:selectedEmoji,category});
-}else{
-const link=links.find(l=>l.id===editingId);
-if(link){link.name=name;link.url=url;link.icon=selectedEmoji;link.category=category}
-}
-saveLinks();
-editOverlay.classList.remove("show");
-renderLinks();
-};
-
-document.getElementById("deleteButton").onclick=()=>{
-const link=links.find(l=>l.id===editingId);
-if(!link)return;
-if(!confirm("「"+link.name+"」を削除しますか？"))return;
-links=links.filter(l=>l.id!==editingId);
-saveLinks();
-editOverlay.classList.remove("show");
-renderLinks();
-};
-
-/* 設定 */
-document.getElementById("settingsButton").onclick=()=>{
-renderCategoryList();
-settingsOverlay.classList.add("show");
-};
-
-document.getElementById("closeSettingsButton").onclick=()=>settingsOverlay.classList.remove("show");
-
-document.getElementById("addCategoryButton").onclick=()=>{
-const name=prompt("新しいカテゴリ名を入力してください");
-if(!name)return;
-const trimmed=name.trim();
-if(!trimmed||trimmed==="すべて")return;
-if(categories.includes(trimmed)){alert("そのカテゴリはすでにあります");return}
-categories.push(trimmed);
-saveCategories();
-renderCategoryList();
-renderTabs();
-};
-
-function renderCategoryList(){
-const box=document.getElementById("categoryList");
-box.innerHTML="";
-categories.filter(c=>c!=="すべて").forEach(category=>{
-const row=document.createElement("div");
-row.className="category-row";
-
-const name=document.createElement("div");
-name.className="category-name";
-name.textContent=category;
-
-const edit=document.createElement("button");
-edit.className="category-edit";
-edit.textContent="編集";
-edit.onclick=()=>editCategory(category);
-
-const del=document.createElement("button");
-del.className="category-delete";
-del.textContent="削除";
-del.onclick=()=>deleteCategory(category);
-
-row.append(name,edit,del);
-box.appendChild(row);
-});
+  const item=id?links.find(x=>x.id===id):null;
+  const icon=item?.icon||"🔗";
+  showModal(`<h2>${item?"リンクを編集":"リンクを追加"}</h2>
+    <div class="row"><label>アイコン（直接入力できます）</label>
+      <input id="iconInput" maxlength="8" value="${esc(icon)}" inputmode="text" placeholder="例：🏠">
+      ${emojiButtons(icon)}
+      <div class="hint">iPhoneの絵文字キーボードから好きな絵文字を入力できます。</div>
+    </div>
+    <div class="row"><label>名前</label><input id="nameInput" value="${esc(item?.name||"")}"></div>
+    <div class="row"><label>URL</label><input id="urlInput" type="url" value="${esc(item?.url||"")}" placeholder="https://"></div>
+    <div class="row"><label>カテゴリ</label>
+      <select id="catInput">${categories.map(c=>`<option ${c===item?.category?"selected":""}>${esc(c)}</option>`).join("")}</select>
+    </div>
+    <div class="actions">
+      <button id="saveLink">保存</button>
+      ${item?'<button id="deleteLink" class="danger">削除</button>':""}
+      <button id="cancelEdit" class="secondary">キャンセル</button>
+    </div>`);
+  document.querySelectorAll(".emoji").forEach(b=>b.onclick=()=>{
+    $("iconInput").value=b.dataset.emoji;
+    document.querySelectorAll(".emoji").forEach(x=>x.classList.remove("selected"));
+    b.classList.add("selected");
+  });
+  $("saveLink").onclick=()=>{
+    const name=$("nameInput").value.trim();
+    let url=$("urlInput").value.trim();
+    const icon=$("iconInput").value.trim()||"🔗";
+    const category=$("catInput").value;
+    if(!name||!url){alert("名前とURLを入力してください。");return}
+    if(!/^https?:\\/\\//i.test(url))url="https://"+url;
+    if(item)Object.assign(item,{name,url,icon,category});
+    else links.push({id:crypto.randomUUID(),name,url,icon,category});
+    save();closeModal();render();
+  };
+  if(item)$("deleteLink").onclick=()=>deleteLink(id);
+  $("cancelEdit").onclick=closeModal;
 }
 
-function editCategory(oldName){
-const newName=prompt("カテゴリ名を変更",oldName);
-if(!newName)return;
-const trimmed=newName.trim();
-if(!trimmed||trimmed==="すべて"||trimmed===oldName)return;
-if(categories.includes(trimmed)){alert("そのカテゴリはすでにあります");return}
-
-const index=categories.indexOf(oldName);
-if(index!==-1)categories[index]=trimmed;
-
-links.forEach(link=>{
-if(link.category===oldName)link.category=trimmed;
-});
-
-if(currentCategory===oldName)currentCategory=trimmed;
-
-saveCategories();
-saveLinks();
-renderCategoryList();
-renderTabs();
-renderLinks();
+function deleteLink(id){
+  const item=links.find(x=>x.id===id);if(!item)return;
+  if(!confirm(`「${item.name}」を削除しますか？`))return;
+  links=links.filter(x=>x.id!==id);save();closeModal();render();
 }
 
-function deleteCategory(name){
-const count=links.filter(l=>l.category===name).length;
-let message="「"+name+"」を削除しますか？";
-if(count>0){
-message+="\n\nこのカテゴリのリンクが"+count+"件あります。";
-message+="\n削除すると、そのリンクは「仕事」など他のカテゴリへ移す必要があります。";
-}
-if(!confirm(message))return;
-
-if(count>0){
-const other=categories.find(c=>c!=="すべて"&&c!==name);
-if(!other){
-alert("削除できません。別のカテゴリを1つ作ってから削除してください。");
-return;
-}
-links.forEach(link=>{
-if(link.category===name)link.category=other;
-});
+function changeCategory(id){
+  const item=links.find(x=>x.id===id);if(!item)return;
+  showModal(`<h2>カテゴリ変更</h2>
+    <div class="row"><label>カテゴリ</label><select id="moveCat">${categories.map(c=>`<option ${c===item.category?"selected":""}>${esc(c)}</option>`).join("")}</select></div>
+    <div class="actions"><button id="moveSave">変更</button><button id="moveCancel" class="secondary">キャンセル</button></div>`);
+  $("moveSave").onclick=()=>{item.category=$("moveCat").value;save();closeModal();render()};
+  $("moveCancel").onclick=closeModal;
 }
 
-categories=categories.filter(c=>c!==name);
-if(currentCategory===name)currentCategory="すべて";
-
-saveCategories();
-saveLinks();
-renderCategoryList();
-renderTabs();
-renderLinks();
+function openSettings(){
+  showModal(`<h2>設定</h2>
+    <div class="actions">
+      <button id="addCat">カテゴリを追加</button>
+      <button id="allOrder">リンクを並べ替える</button>
+    </div>
+    <div style="height:16px"></div>
+    <label>カテゴリ管理</label>
+    <div class="settings-list" id="catList">${categories.map((c,i)=>`
+      <div class="setting-item">
+        <div class="name">${esc(c)}</div>
+        <div class="btns">
+          <button class="small-btn" data-editcat="${i}">編集</button>
+          <button class="small-btn" data-delcat="${i}">削除</button>
+        </div>
+      </div>`).join("")}</div>
+    <div class="actions"><button id="closeSettings" class="secondary">閉じる</button></div>`);
+  $("addCat").onclick=addCategory;
+  $("allOrder").onclick=()=>openReorder(null);
+  $("closeSettings").onclick=closeModal;
+  document.querySelectorAll("[data-editcat]").forEach(b=>b.onclick=()=>editCategory(+b.dataset.editcat));
+  document.querySelectorAll("[data-delcat]").forEach(b=>b.onclick=()=>deleteCategory(+b.dataset.delcat));
 }
 
-/* 並べ替え */
-function openSort(){
-renderSortList();
-sortOverlay.classList.add("show");
+function addCategory(){
+  const name=prompt("新しいカテゴリ名");
+  if(!name)return;
+  const n=name.trim();if(!n)return;
+  if(n==="すべて"||categories.includes(n)){alert("そのカテゴリはすでに存在します。");return}
+  categories.push(n);save();openSettings();render();
+}
+function editCategory(i){
+  const old=categories[i];const name=prompt("カテゴリ名を変更",old);
+  if(!name)return;const n=name.trim();if(!n||n===old)return;
+  if(n==="すべて"||categories.includes(n)){alert("そのカテゴリはすでに存在します。");return}
+  categories[i]=n;links.forEach(x=>{if(x.category===old)x.category=n});
+  if(currentCategory===old)currentCategory=n;
+  save();openSettings();render();
+}
+function deleteCategory(i){
+  const cat=categories[i];
+  if(categories.length<=1){alert("カテゴリが1つしかないため削除できません。先に別のカテゴリを追加してください。");return}
+  const other=categories.find(x=>x!==cat);
+  const count=links.filter(x=>x.category===cat).length;
+  const msg=count?`「${cat}」を削除します。${count}件のリンクは「${other}」へ移動します。よろしいですか？`:`「${cat}」を削除しますか？`;
+  if(!confirm(msg))return;
+  links.forEach(x=>{if(x.category===cat)x.category=other});
+  categories.splice(i,1);
+  if(currentCategory===cat)currentCategory="すべて";
+  save();openSettings();render();
 }
 
-document.getElementById("globalSortButton").onclick=()=>{
-settingsOverlay.classList.remove("show");
-openSort();
-};
-
-document.getElementById("closeSortButton").onclick=()=>{
-sortOverlay.classList.remove("show");
-renderLinks();
-};
-
-function renderSortList(){
-const box=document.getElementById("sortList");
-box.innerHTML="";
-
-links.forEach((link,index)=>{
-const row=document.createElement("div");
-row.className="sort-row";
-
-const icon=document.createElement("div");
-icon.className="sort-icon";
-icon.textContent=link.icon;
-
-const name=document.createElement("div");
-name.className="sort-name";
-name.textContent=link.name;
-
-const up=document.createElement("button");
-up.className="arrow";
-up.textContent="↑";
-up.disabled=index===0;
-up.onclick=()=>moveLink(index,index-1);
-
-const down=document.createElement("button");
-down.className="arrow";
-down.textContent="↓";
-down.disabled=index===links.length-1;
-down.onclick=()=>moveLink(index,index+1);
-
-row.append(icon,name,up,down);
-box.appendChild(row);
-});
+function openReorder(focusId){
+  showModal(`<h2>リンクを並べ替える</h2>
+    <div class="reorder-list" id="reorderList"></div>
+    <div class="actions"><button id="orderDone" class="secondary">完了</button></div>`);
+  const list=$("reorderList");
+  links.forEach((item,i)=>{
+    const row=document.createElement("div");row.className="reorder-item";
+    row.innerHTML=`<div style="font-size:25px">${esc(item.icon)}</div><div class="ri-name">${esc(item.name)}</div>
+      <button ${i===0?"disabled":""} data-up="${i}">↑</button>
+      <button ${i===links.length-1?"disabled":""} data-down="${i}">↓</button>`;
+    list.appendChild(row);
+  });
+  list.querySelectorAll("[data-up]").forEach(b=>b.onclick=()=>move(+b.dataset.up,-1));
+  list.querySelectorAll("[data-down]").forEach(b=>b.onclick=()=>move(+b.dataset.down,1));
+  $("orderDone").onclick=()=>{closeModal();render()};
+}
+function move(i,d){
+  const j=i+d;if(j<0||j>=links.length)return;
+  [links[i],links[j]]=[links[j],links[i]];
+  save();
+  openReorder();
 }
 
-function moveLink(from,to){
-if(to<0||to>=links.length)return;
-const temp=links[from];
-links[from]=links[to];
-links[to]=temp;
-saveLinks();
-renderSortList();
-renderLinks();
-}
-
-renderTabs();
-renderLinks();
+$("settingsBtn").onclick=openSettings;
+render();
 </script>
 </body>
 </html>
